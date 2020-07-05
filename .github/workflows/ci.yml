@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Build using Donkeybrains image
+      uses: docker://jokarls/donkeybrains:latest
+      with:
+        args: monkeyc -d edge820 -o bin/app.prg -f monkey.jungle
+
