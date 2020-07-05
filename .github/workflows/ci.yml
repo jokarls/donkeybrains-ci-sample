@@ -1,8 +1,6 @@
 name: CI
 
-on:
-  push:
-    branches: [ master ]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -12,15 +10,22 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     
-    # Prepare developer key
-    - name: Prepare developer key
+    # Prepare developer key from base64 encoded secret
+    - name: Prepare key
       env:
         DEVELOPER_KEY: ${{ secrets.DEVELOPER_KEY }}
       run: echo $DEVELOPER_KEY | base64 -d > key.der
       
-    # Build source using Donkeybrains
-    - name: Build using Donkeybrains image
+    # Build source using Donkeybrains docker image
+    - name: Build
       uses: docker://jokarls/donkeybrains:latest
       with:
         args: monkeyc -d edge820 -o bin/app.prg -f monkey.jungle -y key.der
+        
+    # Store the artifact from previous step
+    - name: Store artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: app
+        path: bin/app.prg
 
